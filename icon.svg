@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Rounded background card matching app theme -->
+  <rect width="512" height="512" rx="110" fill="#2b5c8f"/>
+  
+  <!-- Subtle background staff lines -->
+  <line x1="60" y1="180" x2="452" y2="180" stroke="#ffffff" stroke-width="4" opacity="0.15" stroke-linecap="round"/>
+  <line x1="60" y1="226" x2="452" y2="226" stroke="#ffffff" stroke-width="4" opacity="0.15" stroke-linecap="round"/>
+  <line x1="60" y1="272" x2="452" y2="272" stroke="#ffffff" stroke-width="4" opacity="0.15" stroke-linecap="round"/>
+  <line x1="60" y1="318" x2="452" y2="318" stroke="#ffffff" stroke-width="4" opacity="0.15" stroke-linecap="round"/>
+  <line x1="60" y1="364" x2="452" y2="364" stroke="#ffffff" stroke-width="4" opacity="0.15" stroke-linecap="round"/>
+
+  <!-- Randomized & Rotated Surrounding Accidentals (Flat, Double Flat, Sharp, Double Sharp) -->
+  <text x="105" y="145" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="bold" font-size="75" fill="#ffffff" opacity="0.8" transform="rotate(-15, 105, 145)" text-anchor="middle">♭</text>
+  <text x="410" y="155" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="bold" font-size="65" fill="#ffffff" opacity="0.8" transform="rotate(20, 410, 155)" text-anchor="middle">♭♭</text>
+  <text x="390" y="270" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="bold" font-size="80" fill="#ffffff" opacity="0.8" transform="rotate(12, 390, 270)" text-anchor="middle">♯</text>
+  <text x="125" y="385" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="bold" font-size="70" fill="#ffffff" opacity="0.8" transform="rotate(8, 125, 385)" text-anchor="middle">𝄪</text>
+  <text x="355" y="385" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="bold" font-size="75" fill="#ffffff" opacity="0.8" transform="rotate(-12, 355, 385)" text-anchor="middle">♭</text>
+
+  <!-- Central Question Mark -->
+  <text x="256" y="315" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="220" fill="#ffffff" text-anchor="middle">?</text>
+</svg>
