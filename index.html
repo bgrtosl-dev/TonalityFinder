@@ -11,8 +11,8 @@
     <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
     <style>
         :root {
-            --btn-width: 60px;
-            --btn-height: 48px;
+            --btn-width: 65px;
+            --btn-height: 52px;
             --primary-color: #2b5c8f;
         }
 
@@ -104,7 +104,7 @@
             width: var(--btn-width);
             height: var(--btn-height);
             border-radius: 6px;
-            font-size: 1.05rem;
+            font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
@@ -128,7 +128,6 @@
             margin-top: 10px;
         }
 
-        /* Scale card with padding left for absolute tick button */
         .scale-card {
             background: #ffffff;
             border-radius: 8px;
@@ -141,7 +140,6 @@
             gap: 6px;
         }
 
-        /* Tick button pinned inside top-left corner */
         .tick-btn {
             position: absolute;
             top: 10px;
@@ -189,7 +187,6 @@
             justify-content: center;
         }
 
-        /* Modal Backdrop */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -203,7 +200,6 @@
             z-index: 1000;
         }
 
-        /* Modal Card */
         .modal-card {
             background: white;
             padding: 22px;
@@ -239,9 +235,9 @@
     <div class="modal-card">
         <h2>How to Use Tonality Explorer</h2>
         <ul>
-            <li>Select the initial number of sharps or flats in the <strong>Key Signature</strong> dropdown.</li>
+            <li>Select the initial number of sharps or flats in the <strong>Key Signature</strong> dropdown (the 7th degree automatically defaults to <strong>?</strong>).</li>
             <li>Modify specific note alterations using the interactive keyboard buttons below it.</li>
-            <li>If a note is uncertain, select the <strong>?</strong> mark.</li>
+            <li>If a note is uncertain, select the <strong>?</strong> mark (e.g. <strong>G?</strong>).</li>
             <li>All matching scales and tonalities will automatically appear below.</li>
             <li>Tap the tick (<strong>✓</strong>) icon on any scale card to adopt its key signature.</li>
         </ul>
@@ -264,7 +260,6 @@
         <h1 class="app-title">
             Tonality Explorer
             <span class="header-icons">
-                <!-- Help Icon -->
                 <span id="help-btn" style="cursor: pointer; display: inline-flex; align-items: center;" title="Help & Instructions">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -272,7 +267,6 @@
                         <line x1="12" y1="17" x2="12.01" y2="17"></line>
                     </svg>
                 </span>
-                <!-- QR Code Icon -->
                 <span id="qr-btn" style="cursor: pointer; display: inline-flex; align-items: center;" title="Show QR Code">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="3" width="7" height="7"></rect>
@@ -321,7 +315,6 @@
         errorBox.textContent = `Global Error: ${event.message}\nAt: ${event.filename}:${event.lineno}`;
     });
 
-    // Help Modal interactions
     const helpBtn = document.getElementById('help-btn');
     const helpModal = document.getElementById('help-modal');
     if (helpBtn && helpModal) {
@@ -334,7 +327,6 @@
         });
     }
 
-    // QR Modal interactions
     const qrBtn = document.getElementById('qr-btn');
     const qrModal = document.getElementById('qr-modal');
     if (qrBtn && qrModal) {
@@ -380,7 +372,6 @@
     const selectEl = document.getElementById('key-sig-select');
     const keyboardEl = document.getElementById('keyboard');
 
-    // Populate Selector
     for (let ks = -7; ks <= 7; ks++) {
         const option = document.createElement('option');
         option.value = ks;
@@ -394,10 +385,21 @@
     function buildKeyboard() {
         keyboardEl.innerHTML = '';
         const keySig = parseInt(selectEl.value, 10);
-        const info = KEY_SIGNATURE_MAP[keySig] || {alts: {}};
+        const info = KEY_SIGNATURE_MAP[keySig] || {alts: {}, min: 'A'};
+        const baseAlts = info.alts || {};
+
+        const minTonicLetter = info.min.charAt(0);
+        const whiteNotesList = window.WHITE_NOTES;
+        const minIndex = whiteNotesList.indexOf(minTonicLetter);
+        const leadingToneLetter = whiteNotesList[(minIndex - 1 + 7) % 7];
 
         window.WHITE_NOTES.forEach(note => {
-            const defaultAlt = info.alts[note] || '';
+            let defaultAlt = baseAlts[note] || '';
+
+            if (note === leadingToneLetter) {
+                defaultAlt = '?';
+            }
+
             window.userOverrides[note] = defaultAlt;
 
             const selectNoteEl = document.createElement('select');
@@ -407,7 +409,8 @@
             ALTERATION_OPTIONS.forEach(opt => {
                 const optionEl = document.createElement('option');
                 optionEl.value = opt.alt;
-                optionEl.textContent = `${note}${opt.label}`;
+                // Display note name with question mark (e.g. G?)
+                optionEl.textContent = opt.alt === '?' ? `${note}?` : `${note}${opt.label}`;
                 if (opt.alt === defaultAlt) {
                     optionEl.selected = true;
                 }
@@ -488,7 +491,6 @@
             const card = document.createElement('div');
             card.className = 'scale-card';
 
-            // Tick button positioned inside top-left corner
             const tickBtn = document.createElement('button');
             tickBtn.className = 'tick-btn';
             tickBtn.innerHTML = '✓';
@@ -501,7 +503,6 @@
 
             card.appendChild(tickBtn);
 
-            // Scale content container (title & stave)
             const contentDiv = document.createElement('div');
             contentDiv.className = 'scale-content';
 
