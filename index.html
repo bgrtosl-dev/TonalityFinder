@@ -128,38 +128,38 @@
             margin-top: 10px;
         }
 
+        /* Scale card with padding left to accommodate absolute tick button */
         .scale-card {
             background: #ffffff;
             border-radius: 8px;
-            padding: 12px;
+            padding: 12px 12px 12px 44px;
+            position: relative;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .scale-left {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 6px;
-            min-width: 44px;
         }
 
+        /* Tick button pinned inside top-left corner */
         .tick-btn {
+            position: absolute;
+            top: 10px;
+            left: 8px;
             background-color: #f0f4f8;
             border: 2px solid var(--primary-color);
             color: var(--primary-color);
             border-radius: 6px;
-            width: 36px;
-            height: 36px;
-            font-size: 1.1rem;
+            width: 30px;
+            height: 30px;
+            font-size: 0.95rem;
             font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.15s ease-in-out;
+            z-index: 2;
         }
 
         .tick-btn:hover {
@@ -167,18 +167,19 @@
             color: white;
         }
 
-        .scale-right {
+        .scale-content {
             display: flex;
             flex-direction: column;
-            flex-grow: 1;
+            width: 100%;
             align-items: center;
         }
 
         .scale-title {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: #222;
             margin-bottom: 4px;
+            text-align: center;
         }
 
         .stave-container {
@@ -409,10 +410,7 @@
             const card = document.createElement('div');
             card.className = 'scale-card';
 
-            // Left side: Tick button
-            const leftCol = document.createElement('div');
-            leftCol.className = 'scale-left';
-
+            // Tick button positioned inside top-left corner
             const tickBtn = document.createElement('button');
             tickBtn.className = 'tick-btn';
             tickBtn.innerHTML = '✓';
@@ -423,11 +421,11 @@
                 selectEl.dispatchEvent(new Event('change'));
             });
 
-            leftCol.appendChild(tickBtn);
+            card.appendChild(tickBtn);
 
-            // Right side: Title and VexFlow stave
-            const rightCol = document.createElement('div');
-            rightCol.className = 'scale-right';
+            // Scale content container (title & stave)
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'scale-content';
 
             const title = document.createElement('div');
             title.className = 'scale-title';
@@ -447,11 +445,10 @@
             staveContainer.className = 'stave-container';
             staveContainer.id = `vexflow-stave-${index}`;
 
-            rightCol.appendChild(title);
-            rightCol.appendChild(staveContainer);
+            contentDiv.appendChild(title);
+            contentDiv.appendChild(staveContainer);
 
-            card.appendChild(leftCol);
-            card.appendChild(rightCol);
+            card.appendChild(contentDiv);
             outputEl.appendChild(card);
 
             drawVexFlowScale(staveContainer.id, scale);
@@ -464,10 +461,10 @@
         div.innerHTML = '';
 
         const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
-        renderer.resize(480, 120);
+        renderer.resize(460, 120);
         const context = renderer.getContext();
 
-        const stave = new VF.Stave(10, 10, 450);
+        const stave = new VF.Stave(10, 10, 430);
         stave.addClef("treble").setContext(context).draw();
 
         let pitchList = [];
@@ -517,7 +514,7 @@
             voice.setStrict(false);
             voice.addTickables(staveNotes);
 
-            new VF.Formatter().joinVoices([voice]).format([voice], 350);
+            new VF.Formatter().joinVoices([voice]).format([voice], 330);
             voice.draw(context, stave);
         }
     }
