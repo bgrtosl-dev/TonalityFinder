@@ -7,10 +7,279 @@
     <!-- PWA Manifest & App Icons -->
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="./icon.svg">
-    <!-- Stylesheet Link -->
-    <link rel="stylesheet" href="style.css">
     <!-- VexFlow Library for musical notation rendering -->
     <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <style>
+        :root {
+            --btn-width: 65px;
+            --btn-height: 52px;
+            --primary-color: #2b5c8f;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 4px;
+        }
+
+        h1.app-title {
+            margin: 0;
+            font-size: 1.75rem;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .header-icons {
+            display: inline-flex;
+            gap: 12px;
+            color: var(--primary-color);
+        }
+
+        #error-box {
+            background-color: #ffe6e6;
+            color: #c00;
+            border: 1px solid #ffcccc;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .selector-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .key-sig-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .step-btn {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            width: 40px;
+            height: 38px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.15s ease-in-out;
+            user-select: none;
+        }
+
+        .step-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        select#key-sig-select {
+            padding: 6px 10px;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            outline: none;
+            flex-grow: 1;
+            height: 38px;
+            text-align: center;
+            text-align-last: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .keyboard-section {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .note-select {
+            width: var(--btn-width);
+            height: var(--btn-height);
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-align-last: center;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding: 0;
+        }
+
+        /* Keyboard Color Schemes */
+        .note-select.color-strong-blue {
+            background-color: #1d4ed8;
+            border-color: #1e40af;
+            color: #ffffff;
+        }
+
+        .note-select.color-light-blue {
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .note-select.color-green {
+            background-color: #28a745;
+            border-color: #1e7e34;
+            color: #ffffff;
+        }
+
+        .scales-output {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .scale-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 12px 12px 12px 52px;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tick-btn {
+            position: absolute;
+            top: 10px;
+            left: 8px;
+            background-color: #f0f4f8;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 6px;
+            min-width: 36px;
+            height: 30px;
+            padding: 0 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease-in-out;
+            z-index: 2;
+        }
+
+        .tick-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .scale-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+        }
+
+        .scale-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: #222;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .stave-container {
+            width: 100%;
+            overflow-x: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 320px;
+            width: 85%;
+        }
+
+        .modal-card h2 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .modal-card ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            color: #444;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+    </style>
 </head>
 <body>
 
@@ -22,6 +291,7 @@
             <li>Select the initial number of sharps or flats in the <strong>Key Signature</strong> dropdown or step with <strong>- / +</strong>.</li>
             <li>Modify specific note alterations using the interactive keyboard buttons below it.</li>
             <li>If a note is uncertain, select the <strong>?</strong> mark (e.g. <strong>G?</strong>).</li>
+            <li>Keyboard colors and dropdown labels highlight related tonalities and alterations based on the selected key.</li>
             <li>All matching scales and tonalities will automatically appear below.</li>
             <li>Tap the key signature badge on any scale card to adopt its key signature.</li>
         </ul>
@@ -154,6 +424,42 @@
         {alt: '?', label: '?'}
     ];
 
+    const rlt = {
+        'C': {'G♯': 'Amin', 'B♭': 'Fmaj', 'F♯': 'Gmaj'},
+        'F': {'C♯': 'Dmin', 'E♭': 'B♭maj', 'B': 'Cmaj'},
+        'G': {'D♯': 'Emin', 'F': 'Cmaj', 'C♯': 'Dmaj'},
+        'B♭': {'F♯': 'Gmin', 'A♭': 'E♭maj', 'E': 'Fmaj'},
+        'D': {'A♯': 'Bmin', 'C': 'Gmaj', 'G♯': 'Amaj'},
+        'E♭': {'B': 'Cmin', 'D♭': 'A♭maj', 'A': 'B♭maj'},
+        'A': {'E♯': 'F♯min', 'G': 'Dmaj', 'D♯': 'Emaj'},
+        'A♭': {'E': 'Fmin', 'G♭': 'D♭maj', 'D': 'E♭maj'},
+        'E': {'B♯': 'C♯min', 'D': 'Amaj', 'A♯': 'Bmaj'},
+        'D♭': {'A': 'B♭min', 'C♭': 'G♭maj', 'G': 'A♭maj'},
+        'B': {'F𝄪': 'G♯min', 'A': 'Emaj', 'E♯': 'F♯maj'},
+        'G♭': {'D': 'E♭min', 'F♭': 'C♭maj', 'C': 'D♭maj'},
+        'F♯': {'C𝄪': 'D♯min', 'E': 'Bmaj', 'B♯': 'C♯maj'},
+        'C♭': {'G': 'A♭min', 'B♭♭': 'F♭maj', 'F': 'G♭maj'},
+        'C♯': {'G𝄪': 'A♯min', 'B': 'F♯maj', 'F𝄪': 'G♯maj'}
+    };
+
+    const clr = {
+        'C': {'C': 'BLUE', 'G': 'GREEN', 'B': 'blue', 'F': 'blue'},
+        'F': {'F': 'BLUE', 'C': 'GREEN', 'E': 'blue', 'B': 'blue'},
+        'G': {'G': 'BLUE', 'D': 'GREEN', 'F': 'blue', 'C': 'blue'},
+        'B♭': {'B': 'BLUE', 'F': 'GREEN', 'A': 'blue', 'E': 'blue'},
+        'D': {'D': 'BLUE', 'A': 'GREEN', 'C': 'blue', 'G': 'blue'},
+        'E♭': {'E': 'BLUE', 'B': 'GREEN', 'D': 'blue', 'A': 'blue'},
+        'A': {'A': 'BLUE', 'E': 'GREEN', 'G': 'blue', 'D': 'blue'},
+        'A♭': {'A': 'BLUE', 'E': 'GREEN', 'G': 'blue', 'D': 'blue'},
+        'E': {'E': 'BLUE', 'B': 'GREEN', 'D': 'blue', 'A': 'blue'},
+        'D♭': {'D': 'BLUE', 'A': 'GREEN', 'C': 'blue', 'G': 'blue'},
+        'B': {'B': 'BLUE', 'F': 'GREEN', 'A': 'blue', 'E': 'blue'},
+        'G♭': {'G': 'BLUE', 'D': 'GREEN', 'F': 'blue', 'C': 'blue'},
+        'F♯': {'F': 'BLUE', 'C': 'GREEN', 'E': 'blue', 'B': 'blue'},
+        'C♭': {'C': 'BLUE', 'G': 'GREEN', 'B': 'blue', 'F': 'blue'},
+        'C♯': {'C': 'BLUE', 'G': 'GREEN', 'B': 'blue', 'F': 'blue'}
+    };
+
     window.WHITE_NOTES = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
     window.userOverrides = {};
 
@@ -175,13 +481,17 @@
     function buildKeyboard() {
         keyboardEl.innerHTML = '';
         const keySig = parseInt(selectEl.value, 10);
-        const info = KEY_SIGNATURE_MAP[keySig] || {alts: {}, min: 'A'};
+        const info = KEY_SIGNATURE_MAP[keySig] || {alts: {}, maj: 'C', min: 'A'};
         const baseAlts = info.alts || {};
+        const tonality = info.maj;
 
         const minTonicLetter = info.min.charAt(0);
         const whiteNotesList = window.WHITE_NOTES;
         const minIndex = whiteNotesList.indexOf(minTonicLetter);
         const leadingToneLetter = whiteNotesList[(minIndex - 1 + 7) % 7];
+
+        const tonalityColors = clr[tonality] || {};
+        const tonalityRlt = rlt[tonality] || {};
 
         window.WHITE_NOTES.forEach(note => {
             let defaultAlt = baseAlts[note] || '';
@@ -194,12 +504,32 @@
 
             const selectNoteEl = document.createElement('select');
             selectNoteEl.className = 'note-select';
+
+            // Apply coloring based on exact case in clr[tonality]
+            const colorVal = tonalityColors[note];
+            if (colorVal === 'BLUE') {
+                selectNoteEl.classList.add('color-strong-blue');
+            } else if (colorVal === 'blue') {
+                selectNoteEl.classList.add('color-light-blue');
+            } else if (colorVal === 'GREEN') {
+                selectNoteEl.classList.add('color-green');
+            }
+
             selectNoteEl.id = `select-${note}`;
 
             ALTERATION_OPTIONS.forEach(opt => {
                 const optionEl = document.createElement('option');
                 optionEl.value = opt.alt;
-                optionEl.textContent = opt.alt === '?' ? `${note}?` : `${note}${opt.label}`;
+
+                let noteDisplay = opt.alt === '?' ? `${note}?` : `${note}${opt.label}`;
+
+                // Check rlt[tonality] for optional labelling of alterations
+                if (tonalityRlt[noteDisplay]) {
+                    optionEl.textContent = `${noteDisplay} (${tonalityRlt[noteDisplay]})`;
+                } else {
+                    optionEl.textContent = noteDisplay;
+                }
+
                 if (opt.alt === defaultAlt) {
                     optionEl.selected = true;
                 }
@@ -382,10 +712,8 @@
 
         if (pitchList.length === 0) return;
 
-        // Map note letter positions (C=0 up to B=6)
         const NOTE_ORDER = { 'c': 0, 'd': 1, 'e': 2, 'f': 3, 'g': 4, 'a': 5, 'b': 6 };
 
-        // 1. Calculate octave for the tonic (first note) >= A3
         const tonicLetter = pitchList[0].white.toLowerCase();
         let currentOctave = (tonicLetter === 'a' || tonicLetter === 'b') ? 3 : 4;
         let prevOrderValue = NOTE_ORDER[tonicLetter];
@@ -394,7 +722,6 @@
             const whiteKey = pitch.white.toLowerCase();
             const orderValue = NOTE_ORDER[whiteKey];
 
-            // 2. Increment octave when letter wraps around to maintain ascending pitches
             if (index > 0) {
                 if (orderValue <= prevOrderValue) {
                     currentOctave++;
