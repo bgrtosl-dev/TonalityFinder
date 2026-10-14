@@ -142,7 +142,7 @@
         '4': {maj: 'E', min: 'C♯', alts: {F: '#', C: '#', G: '#', D: '#'}},
         '5': {maj: 'B', min: 'G♯', alts: {F: '#', C: '#', G: '#', D: '#', A: '#'}},
         '6': {maj: 'F♯', min: 'D♯', alts: {F: '#', C: '#', G: '#', D: '#', A: '#', E: '#'}},
-        '7': {maj: 'C♯', min: 'A♯', alts: {F: '#', C: '#', G: '#', D: '#', A: '#', E: '#', B: '#'}}
+        '7': {maj: 'C♯', min: 'A♯', alts: {F: '#', C: '#', G: '#', D: '#', A: '#', E: '#', B: '#'}},
     };
 
     const ALTERATION_OPTIONS = [
@@ -380,11 +380,29 @@
             pitchList = scale.pitches.pitches;
         }
 
-        const staveNotes = pitchList.map(pitch => {
-            const whiteKey = pitch.white.toLowerCase();
-            const octave = 4;
+        if (pitchList.length === 0) return;
 
-            const noteKey = `${whiteKey}/${octave}`;
+        // Map note letter positions (C=0 up to B=6)
+        const NOTE_ORDER = { 'c': 0, 'd': 1, 'e': 2, 'f': 3, 'g': 4, 'a': 5, 'b': 6 };
+
+        // 1. Calculate octave for the tonic (first note) >= A3
+        const tonicLetter = pitchList[0].white.toLowerCase();
+        let currentOctave = (tonicLetter === 'a' || tonicLetter === 'b') ? 3 : 4;
+        let prevOrderValue = NOTE_ORDER[tonicLetter];
+
+        const staveNotes = pitchList.map((pitch, index) => {
+            const whiteKey = pitch.white.toLowerCase();
+            const orderValue = NOTE_ORDER[whiteKey];
+
+            // 2. Increment octave when letter wraps around to maintain ascending pitches
+            if (index > 0) {
+                if (orderValue <= prevOrderValue) {
+                    currentOctave++;
+                }
+                prevOrderValue = orderValue;
+            }
+
+            const noteKey = `${whiteKey}/${currentOctave}`;
             const note = new VF.StaveNote({
                 clef: "treble",
                 keys: [noteKey],
@@ -406,7 +424,7 @@
         });
 
         if (staveNotes.length > 0) {
-            const voice = new VF.Voice({num_beats: staveNotes.length, beat_value: 4});
+            const voice = new VF.Voice({ num_beats: staveNotes.length, beat_value: 4 });
             voice.setStrict(false);
             voice.addTickables(staveNotes);
 
