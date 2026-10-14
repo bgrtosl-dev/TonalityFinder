@@ -82,14 +82,47 @@
             font-size: 0.95rem;
         }
 
-        select {
-            padding: 10px 12px;
-            font-size: 1rem;
+        .key-sig-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .step-btn {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            width: 40px;
+            height: 38px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.15s ease-in-out;
+            user-select: none;
+        }
+
+        .step-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        select#key-sig-select {
+            padding: 6px 10px;
+            font-size: 0.95rem;
             border-radius: 8px;
             border: 1px solid #ccc;
             background-color: #fff;
             outline: none;
-            width: 100%;
+            flex-grow: 1;
+            height: 38px;
+            text-align: center;
+            text-align-last: center;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
@@ -131,7 +164,7 @@
         .scale-card {
             background: #ffffff;
             border-radius: 8px;
-            padding: 12px 12px 12px 44px;
+            padding: 12px 12px 12px 52px;
             position: relative;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
             display: flex;
@@ -148,9 +181,10 @@
             border: 2px solid var(--primary-color);
             color: var(--primary-color);
             border-radius: 6px;
-            width: 30px;
+            min-width: 36px;
             height: 30px;
-            font-size: 0.95rem;
+            padding: 0 4px;
+            font-size: 0.85rem;
             font-weight: bold;
             cursor: pointer;
             display: flex;
@@ -235,11 +269,11 @@
     <div class="modal-card">
         <h2>How to Use Tonality Explorer</h2>
         <ul>
-            <li>Select the initial number of sharps or flats in the <strong>Key Signature</strong> dropdown.</li>
+            <li>Select the initial number of sharps or flats in the <strong>Key Signature</strong> dropdown or step with <strong>- / +</strong>.</li>
             <li>Modify specific note alterations using the interactive keyboard buttons below it.</li>
             <li>If a note is uncertain, select the <strong>?</strong> mark (e.g. <strong>G?</strong>).</li>
             <li>All matching scales and tonalities will automatically appear below.</li>
-            <li>Tap the tick (<strong>✓</strong>) icon on any scale card to adopt its key signature.</li>
+            <li>Tap the key signature badge on any scale card to adopt its key signature.</li>
         </ul>
     </div>
 </div>
@@ -288,7 +322,11 @@
 
     <div class="selector-section">
         <label for="key-sig-select">Key Signature:</label>
-        <select id="key-sig-select"></select>
+        <div class="key-sig-control">
+            <button type="button" id="prev-ks-btn" class="step-btn" title="Decrease flats / Move left">−</button>
+            <select id="key-sig-select"></select>
+            <button type="button" id="next-ks-btn" class="step-btn" title="Increase sharps / Move right">+</button>
+        </div>
     </div>
 
     <div class="keyboard-section" id="keyboard"></div>
@@ -370,6 +408,8 @@
     window.userOverrides = {};
 
     const selectEl = document.getElementById('key-sig-select');
+    const prevKsBtn = document.getElementById('prev-ks-btn');
+    const nextKsBtn = document.getElementById('next-ks-btn');
     const keyboardEl = document.getElementById('keyboard');
 
     for (let ks = -7; ks <= 7; ks++) {
@@ -409,7 +449,6 @@
             ALTERATION_OPTIONS.forEach(opt => {
                 const optionEl = document.createElement('option');
                 optionEl.value = opt.alt;
-                // Display note name with question mark (e.g. G?)
                 optionEl.textContent = opt.alt === '?' ? `${note}?` : `${note}${opt.label}`;
                 if (opt.alt === defaultAlt) {
                     optionEl.selected = true;
@@ -432,6 +471,22 @@
         if (window.triggerUpdate) window.triggerUpdate();
     });
 
+    prevKsBtn.addEventListener('click', () => {
+        const currVal = parseInt(selectEl.value, 10);
+        if (currVal > -7) {
+            selectEl.value = currVal - 1;
+            selectEl.dispatchEvent(new Event('change'));
+        }
+    });
+
+    nextKsBtn.addEventListener('click', () => {
+        const currVal = parseInt(selectEl.value, 10);
+        if (currVal < 7) {
+            selectEl.value = currVal + 1;
+            selectEl.dispatchEvent(new Event('change'));
+        }
+    });
+
     buildKeyboard();
 </script>
 
@@ -445,6 +500,14 @@
 
     const errorBox = document.getElementById('error-box');
     const selectEl = document.getElementById('key-sig-select');
+
+    function formatAccidentalsToUnicode(text) {
+        if (!text) return '';
+        return text
+            .replace(/#/g, '♯')
+            .replace(/b/g, '♭')
+            .replace(/x/g, '𝄪');
+    }
 
     try {
         Pitch.populate();
@@ -493,7 +556,13 @@
 
             const tickBtn = document.createElement('button');
             tickBtn.className = 'tick-btn';
-            tickBtn.innerHTML = '✓';
+
+            let ksLabel = '';
+            if (scale.key_sig > 0) ksLabel = `${scale.key_sig}♯`;
+            else if (scale.key_sig < 0) ksLabel = `${Math.abs(scale.key_sig)}♭`;
+            else ksLabel = '0';
+
+            tickBtn.innerHTML = ksLabel;
             tickBtn.title = 'Apply this key signature';
 
             tickBtn.addEventListener('click', () => {
@@ -509,16 +578,14 @@
             const title = document.createElement('div');
             title.className = 'scale-title';
 
-            const tonicEng = scale.pitches && typeof scale.pitches.get === 'function'
+            const rawTonic = scale.pitches && typeof scale.pitches.get === 'function'
                 ? scale.pitches.get(0).eng
                 : (scale.tonic ? scale.tonic.eng : 'Scale');
 
-            let ksLabel = '';
-            if (scale.key_sig > 0) ksLabel = `${scale.key_sig}♯`;
-            else if (scale.key_sig < 0) ksLabel = `${Math.abs(scale.key_sig)}♭`;
-            else ksLabel = '0';
+            const tonicFormatted = formatAccidentalsToUnicode(rawTonic);
+            const scaleNameFormatted = formatAccidentalsToUnicode(scale.name);
 
-            title.textContent = `${tonicEng} ${scale.name} (${ksLabel})`;
+            title.textContent = `${tonicFormatted} ${scaleNameFormatted}`;
 
             const staveContainer = document.createElement('div');
             staveContainer.className = 'stave-container';
