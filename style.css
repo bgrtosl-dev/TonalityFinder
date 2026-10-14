@@ -141,6 +141,25 @@ select#key-sig-select {
     padding: 0;
 }
 
+/* Related Scale Keyboard Button Color Scheme (Stronger Blue) */
+.note-select.color-blue {
+    background-color: #1d4ed8;
+    border-color: #1e40af;
+    color: #ffffff;
+}
+
+.note-select.color-green {
+    background-color: #28a745;
+    border-color: #1e7e34;
+    color: #ffffff;
+}
+
+.note-select.color-light-blue {
+    background-color: #d1ecf1;
+    border-color: #17a2b8;
+    color: #0c5460;
+}
+
 .scales-output {
     display: flex;
     flex-direction: column;
